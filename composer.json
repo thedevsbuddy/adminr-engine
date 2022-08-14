@@ -1,12 +1,12 @@
 {
     "name": "thedevsbuddy/adminr-engine",
-    "version": "0.1.0",
-    "description": "A package to generate crud on any laravel project.",
+    "version": "0.1.5",
+    "description": "An engine for the AdminR project.",
     "keywords": [
         "devsbuddy",
         "adminr-engine"
     ],
-    "homepage": "https://github.com/thedevsbuddy/adminr",
+    "homepage": "https://github.com/thedevsbuddy/adminr-engine",
     "license": "MIT",
     "type": "library",
     "authors": [
