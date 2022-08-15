@@ -129,16 +129,18 @@ class BuildControllersService extends AdminrEngineService
         $validationStmt = "\$request->validate([\n\t\t\t\t";
         foreach ($migrations as $migration) {
             $lastTabs = ",\n\t\t\t\t";
-            if ($migration['data_type'] != 'slug' || $migration['data_type'] != 'uuid') {
-                if ($migration == $migrations[count($migrations) - 1]) {
-                    $lastTabs = ",\n\t\t\t";
-                }
-                $isUnique = "";
-                if ($migration['unique']) {
-                    $isUnique = ", \"unique:" . $this->tableName . "\"";
-                }
-                if ($migration['nullable'] == false) {
-                    $validationStmt .= "\"" . Str::snake($migration['field_name']) . "\" => [\"required\"" . $isUnique . "]" . $lastTabs . "";
+            if ($migration['data_type'] != 'slug') {
+                if ($migration['data_type'] != 'uuid') {
+                    if ($migration == $migrations[count($migrations) - 1]) {
+                        $lastTabs = ",\n\t\t\t";
+                    }
+                    $isUnique = "";
+                    if ($migration['unique']) {
+                        $isUnique = ", \"unique:" . $this->tableName . "\"";
+                    }
+                    if ($migration['nullable'] == false) {
+                        $validationStmt .= "\"" . Str::snake($migration['field_name']) . "\" => [\"required\"" . $isUnique . "]" . $lastTabs;
+                    }
                 }
             }
         }
@@ -153,13 +155,15 @@ class BuildControllersService extends AdminrEngineService
         $validationStmt = "\$request->validate([\n\t\t\t\t";
         foreach ($migrations as $migration) {
             $lastTabs = ",\n\t\t\t\t";
-            if ($migration['data_type'] != 'slug' || $migration['data_type'] != 'uuid') {
-                if ($migration['data_type'] != 'file') {
-                    if ($migration == $migrations[count($migrations) - 1]) {
-                        $lastTabs = "\n\t\t\t";
-                    }
-                    if ($migration['nullable'] == false) {
-                        $validationStmt .= "\"" . Str::snake($migration['field_name']) . "\" => [\"required\"]" . $lastTabs . "";
+            if ($migration['data_type'] != 'slug') {
+                if ($migration['data_type'] != 'uuid') {
+                    if ($migration['data_type'] != 'file') {
+                        if ($migration == $migrations[count($migrations) - 1]) {
+                            $lastTabs = "\n\t\t\t";
+                        }
+                        if ($migration['nullable'] == false) {
+                            $validationStmt .= "\"" . Str::snake($migration['field_name']) . "\" => [\"required\"]" . $lastTabs . "";
+                        }
                     }
                 }
             }
@@ -292,7 +296,7 @@ class BuildControllersService extends AdminrEngineService
                     $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => Str::slug(\$request->get(\"" . $migration['slug_from'] . "\"))" . $lastTabs;
                 } elseif ($migration['data_type'] == 'file') {
                     $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$" . Str::snake($migration['field_name']) . $lastTabs;
-                }  elseif ($migration['data_type'] == 'uuid') {
+                } elseif ($migration['data_type'] == 'uuid') {
                     $updateDataStmt .= "";
                 } else {
                     $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$request->get(\"" . Str::snake($migration['field_name']) . "\")" . $lastTabs;
@@ -326,7 +330,7 @@ class BuildControllersService extends AdminrEngineService
         $foreignEntityUseStmt = '';
         foreach ($migrations as $migration) {
             if ($migration['data_type'] == 'foreignId') {
-                $foreignEntityUseStmt .= "use \\App\\Models\\".Str::ucfirst($migration['related_model']).";\n";
+                $foreignEntityUseStmt .= "use \\App\\Models\\" . Str::ucfirst($migration['related_model']) . ";\n";
             }
         }
         return $foreignEntityUseStmt;
@@ -339,7 +343,7 @@ class BuildControllersService extends AdminrEngineService
         $foreignEntityDataStmt = '';
         foreach ($migrations as $migration) {
             if ($migration['data_type'] == 'foreignId') {
-                $foreignEntityDataStmt .= "$".Str::snake(Str::plural($migration['related_model'])) . " = ".Str::ucfirst($migration['related_model'])."::select('id', '".$migration['related_model_label']."')->get();\n\t\t\t\t";
+                $foreignEntityDataStmt .= "$" . Str::snake(Str::plural($migration['related_model'])) . " = " . Str::ucfirst($migration['related_model']) . "::select('id', '" . $migration['related_model_label'] . "')->get();\n\t\t\t\t";
             }
         }
         return $foreignEntityDataStmt;
