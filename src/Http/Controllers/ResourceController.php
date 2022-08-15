@@ -9,6 +9,7 @@ use Devsbuddy\AdminrEngine\Traits\HasStubs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -83,6 +84,7 @@ class ResourceController extends Controller
         $resource = AdminrResource::where('id', $id)->first();
         $middlewares = $resource->api_route_middlewares;
         foreach ($request->all() as $key => $method) {
+            Cache::forget(Str::camel($resource->name . $method . 'Middleware'));
             if ($method) {
                 if (!in_array("auth:sanctum", $middlewares->{$key})) {
                     array_push($middlewares->{$key}, "auth:sanctum");
@@ -96,7 +98,7 @@ class ResourceController extends Controller
         $resource->api_route_middlewares = $middlewares;
         $resource->save();
 
-            return $this->successMessage("API public routes permission updated!", 200);
+        return $this->successMessage("API public routes permission updated!", 200);
 
     }
 
