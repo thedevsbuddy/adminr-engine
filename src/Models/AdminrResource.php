@@ -18,6 +18,7 @@ class AdminrResource extends Model
         'controllers' => 'object',
         'payload' => 'object',
         'table_structure' => 'object',
+        'api_route_middlewares' => 'object',
     ];
 
     public function menu(): HasOne

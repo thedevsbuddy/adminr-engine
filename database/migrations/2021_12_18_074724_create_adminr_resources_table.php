@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('table')->nullable();
             $table->json('payload')->nullable();
             $table->json('table_structure')->nullable();
+            $table->json('api_route_middlewares')->nullable();
             $table->timestamps();
         });
     }

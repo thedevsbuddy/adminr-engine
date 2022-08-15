@@ -76,7 +76,7 @@ class BuildRoutesService extends AdminrEngineService
         $stub = str_replace('{{CONTROLLER_CLASS}}', $this->controllerName, $stub);
         return str_replace('{{MIDDLEWARES}}', $this->getMiddlewaresStatement(), $stub);
     }
-    
+
     protected function getApiControllerNamespaceStatement(): string
     {
         return "App\\Http\\Controllers\\Api\\";
@@ -84,7 +84,7 @@ class BuildRoutesService extends AdminrEngineService
 
     protected function getMiddlewaresStatement(): string
     {
-        return "[\"api\", \"auth:api\"]";
+        return "";
     }
 
     protected function getControllerNamespaceStatement(): string

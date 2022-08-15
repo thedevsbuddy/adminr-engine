@@ -25,8 +25,33 @@ class ResourceService
             'name' => Str::title(Str::plural($request->get('model'))),
             'model' => Str::studly(Str::singular($request->get('model'))),
             'table_structure' => $request->get('migrations'),
+            'api_route_middlewares' => null,
         ]);
 
+
+        if ($request->get('softdeletes')) {
+            $resource->update([
+                'api_route_middlewares' => [
+                    'index' => ["auth:sanctum"],
+                    'show' => ["auth:sanctum"],
+                    'store' => ["auth:sanctum"],
+                    'update' => ["auth:sanctum"],
+                    'destroy' => ["auth:sanctum"],
+                    'restore' => ["auth:sanctum"],
+                    'forceDestroy' => ["auth:sanctum"],
+                ]
+            ]);
+        } else {
+            $resource->update([
+                'api_route_middlewares' => [
+                    'index' => ["auth:sanctum"],
+                    'show' => ["auth:sanctum"],
+                    'store' => ["auth:sanctum"],
+                    'update' => ["auth:sanctum"],
+                    'destroy' => ["auth:sanctum"],
+                ]
+            ]);
+        }
 
         Permission::firstOrcreate([
             'name' => strtolower($resource->name) . '_list',
@@ -70,12 +95,11 @@ class ResourceService
 
         $permissions = Permission::where('resource', $resource->id)->get();
         $admin = Role::where('name', 'admin')->first();
-        foreach ($permissions as $permission){
+        foreach ($permissions as $permission) {
             $admin->givePermissionTo($permission);
         }
 
         $this->id = $resource->id;
-
 
         return $this;
     }

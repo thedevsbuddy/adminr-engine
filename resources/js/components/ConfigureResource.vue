@@ -171,21 +171,21 @@
             getMiddlewaresList(){
                 if(this.routes.includes("restore") && this.routes.includes("forceDestroy")) {
                     return {
-                        "index": JSON.parse(this.routes).index.middleware.includes("auth:api"),
-                        "show":  JSON.parse(this.routes).show.middleware.includes("auth:api"),
-                        "store":  JSON.parse(this.routes).store.middleware.includes("auth:api"),
-                        "update":  JSON.parse(this.routes).update.middleware.includes("auth:api"),
-                        "destroy":  JSON.parse(this.routes).destroy.middleware.includes("auth:api"),
-                        "restore":  JSON.parse(this.routes).restore.middleware.includes("auth:api"),
-                        "forceDestroy":  JSON.parse(this.routes).forceDestroy.middleware.includes("auth:api")
+                        "index": JSON.parse(this.routes).index.includes("auth:sanctum"),
+                        "show":  JSON.parse(this.routes).show.includes("auth:sanctum"),
+                        "store":  JSON.parse(this.routes).store.includes("auth:sanctum"),
+                        "update":  JSON.parse(this.routes).update.includes("auth:sanctum"),
+                        "destroy":  JSON.parse(this.routes).destroy.includes("auth:sanctum"),
+                        "restore":  JSON.parse(this.routes).restore.includes("auth:sanctum"),
+                        "forceDestroy":  JSON.parse(this.routes).forceDestroy.includes("auth:sanctum")
                     };
                 } else {
                     return {
-                        "index": JSON.parse(this.routes).index.middleware.includes("auth:api"),
-                        "show":  JSON.parse(this.routes).show.middleware.includes("auth:api"),
-                        "store":  JSON.parse(this.routes).store.middleware.includes("auth:api"),
-                        "update":  JSON.parse(this.routes).update.middleware.includes("auth:api"),
-                        "destroy":  JSON.parse(this.routes).destroy.middleware.includes("auth:api")
+                        "index": JSON.parse(this.routes).index.includes("auth:sanctum"),
+                        "show":  JSON.parse(this.routes).show.includes("auth:sanctum"),
+                        "store":  JSON.parse(this.routes).store.includes("auth:sanctum"),
+                        "update":  JSON.parse(this.routes).update.includes("auth:sanctum"),
+                        "destroy":  JSON.parse(this.routes).destroy.includes("auth:sanctum")
                     };
                 }
             },

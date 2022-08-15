@@ -57,9 +57,8 @@ class ResourceController extends Controller
     public function configure($id): View|RedirectResponse
     {
         try {
-            $id = decrypt($id);
-            $resource = AdminrResource::findOrFail($id);
-            $routes = json_decode(File::get(base_path() . '/routes/adminr/api/' . $resource->payload->routes->api));
+            $resource = AdminrResource::findOrFail(decrypt($id));
+            $routes = $resource->api_route_middlewares;
             return view('adminr-engine::resources.configure', compact('resource', 'routes'));
         } catch (\Exception $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
@@ -82,36 +81,24 @@ class ResourceController extends Controller
     public function updateApiMiddlewares($id, Request $request): JsonResponse
     {
         $resource = AdminrResource::where('id', $id)->first();
-        if ($this->updateRouteFile($id, $request)) {
-            return $this->successMessage("API public routes permission updated!", 200);
-        } else {
-            return $this->error("Something went wrong!", 500);
-        }
-    }
-
-    private function updateRouteFile($id, Request $request): bool
-    {
-        $resource = AdminrResource::where('id', $id)->first();
-        $routeFile = (array)json_decode(File::get(base_path() . '/routes/adminr/api/' . Str::lower($resource->name) . '/' . Str::lower($resource->name) . '.json'));
-
+        $middlewares = $resource->api_route_middlewares;
         foreach ($request->all() as $key => $method) {
             if ($method) {
-                if (!in_array("auth:api", $routeFile[$key]->middleware)) {
-                    array_push($routeFile[$key]->middleware, "auth:api");
+                if (!in_array("auth:sanctum", $middlewares->{$key})) {
+                    array_push($middlewares->{$key}, "auth:sanctum");
                 }
             } else {
-                if (($apiKey = array_search("auth:api", $routeFile[$key]->middleware)) !== false) {
-                    unset($routeFile[$key]->middleware[$apiKey]);
+                if (($apiKey = array_search("auth:sanctum", $middlewares->{$key})) !== false) {
+                    unset($middlewares->{$key}[$apiKey]);
                 }
             }
         }
+        $resource->api_route_middlewares = $middlewares;
+        $resource->save();
 
+            return $this->successMessage("API public routes permission updated!", 200);
 
-        File::put(base_path() . '/routes/adminr/api/' . Str::lower($resource->name) . '/' . Str::lower($resource->name) . '.json', json_encode((object)$routeFile));
-
-        return true;
     }
-
 
     public function destroy($id): RedirectResponse
     {
