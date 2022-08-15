@@ -129,7 +129,7 @@ class BuildControllersService extends AdminrEngineService
         $validationStmt = "\$request->validate([\n\t\t\t\t";
         foreach ($migrations as $migration) {
             $lastTabs = ",\n\t\t\t\t";
-            if ($migration['data_type'] != 'slug') {
+            if ($migration['data_type'] != 'slug' || $migration['data_type'] != 'uuid') {
                 if ($migration == $migrations[count($migrations) - 1]) {
                     $lastTabs = ",\n\t\t\t";
                 }
@@ -153,7 +153,7 @@ class BuildControllersService extends AdminrEngineService
         $validationStmt = "\$request->validate([\n\t\t\t\t";
         foreach ($migrations as $migration) {
             $lastTabs = ",\n\t\t\t\t";
-            if ($migration['data_type'] != 'slug') {
+            if ($migration['data_type'] != 'slug' || $migration['data_type'] != 'uuid') {
                 if ($migration['data_type'] != 'file') {
                     if ($migration == $migrations[count($migrations) - 1]) {
                         $lastTabs = "\n\t\t\t";
@@ -270,6 +270,8 @@ class BuildControllersService extends AdminrEngineService
                 $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => Str::slug(\$request->get(\"" . Str::snake($migration['slug_from']) . "\"))" . $lastTabs;
             } elseif ($migration['data_type'] == 'file') {
                 $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$" . Str::snake($migration['field_name']) . $lastTabs;
+            } elseif ($migration['data_type'] == 'uuid') {
+                $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => Str::uuid()" . $lastTabs;
             } else {
                 $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$request->get(\"" . Str::snake($migration['field_name']) . "\")" . $lastTabs;
             }
@@ -282,20 +284,22 @@ class BuildControllersService extends AdminrEngineService
     {
         $migrations = $this->request->get('migrations');
 
-        $saveDataStmt = "";
+        $updateDataStmt = "";
         foreach ($migrations as $migration) {
             $lastTabs = ",\n\t\t\t\t";
             if ($migration['field_name'] != 'id') {
                 if ($migration['field_name'] == 'slug') {
-                    $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => Str::slug(\$request->get(\"" . $migration['slug_from'] . "\"))" . $lastTabs;
+                    $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => Str::slug(\$request->get(\"" . $migration['slug_from'] . "\"))" . $lastTabs;
                 } elseif ($migration['data_type'] == 'file') {
-                    $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$" . Str::snake($migration['field_name']) . $lastTabs;
+                    $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$" . Str::snake($migration['field_name']) . $lastTabs;
+                }  elseif ($migration['data_type'] == 'uuid') {
+                    $updateDataStmt .= "";
                 } else {
-                    $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$request->get(\"" . Str::snake($migration['field_name']) . "\")" . $lastTabs;
+                    $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$request->get(\"" . Str::snake($migration['field_name']) . "\")" . $lastTabs;
                 }
             }
         }
-        return $saveDataStmt;
+        return $updateDataStmt;
     }
 
     protected function getDeleteFileStatement(): string

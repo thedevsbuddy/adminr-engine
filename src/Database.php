@@ -10,6 +10,7 @@ class Database extends Model
     static public function dataTypes(): array
     {
         return [
+            'uuid',
             'integer',
             'foreignId',
             'tinyInteger',
