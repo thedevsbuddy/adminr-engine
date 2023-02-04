@@ -1,4 +1,4 @@
-# Adminr Engine v0.1.6
+# Adminr Engine v0.1.7
 
 <p align="center">
 <a href="https://packagist.org/packages/thedevsbuddy/adminr-engine"><img src="https://img.shields.io/packagist/dt/thedevsbuddy/adminr-engine" alt="Total Downloads"></a>
