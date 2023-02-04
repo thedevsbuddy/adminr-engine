@@ -12,12 +12,7 @@ use Illuminate\Support\Str;
 
 class {{CONTROLLER_CLASS}} extends Controller
 {
-    private int $resultLimit;
-
-    public function __construct(){
-        $this->resultLimit = {{RESULT_LIMIT}};
-    }
-
+    protected int $resultLimit = 10;
 
     public function index(Request $request): JsonResponse|AnonymousResourceCollection
     {

@@ -42,7 +42,6 @@ class BuildControllersService extends AdminrEngineService
         } catch (\Exception | \Error $e) {
             throw $e;
         }
-
     }
 
     public function buildController(): static
@@ -66,7 +65,6 @@ class BuildControllersService extends AdminrEngineService
         } catch (\Exception | \Error $e) {
             throw $e;
         }
-
     }
 
     public function processStub($stub): array|string
@@ -130,16 +128,18 @@ class BuildControllersService extends AdminrEngineService
         foreach ($migrations as $migration) {
             $lastTabs = ",\n\t\t\t\t";
             if ($migration['data_type'] != 'slug') {
-                if ($migration['data_type'] != 'uuid') {
-                    if ($migration == $migrations[count($migrations) - 1]) {
-                        $lastTabs = ",\n\t\t\t";
-                    }
-                    $isUnique = "";
-                    if ($migration['unique']) {
-                        $isUnique = ", \"unique:" . $this->tableName . "\"";
-                    }
-                    if ($migration['nullable'] == false) {
-                        $validationStmt .= "\"" . Str::snake($migration['field_name']) . "\" => [\"required\"" . $isUnique . "]" . $lastTabs;
+                if ($migration['related_model'] != 'auth') {
+                    if ($migration['data_type'] != 'uuid') {
+                        if ($migration == $migrations[count($migrations) - 1]) {
+                            $lastTabs = ",\n\t\t\t";
+                        }
+                        $isUnique = "";
+                        if ($migration['unique']) {
+                            $isUnique = ", \"unique:" . $this->tableName . "\"";
+                        }
+                        if ($migration['nullable'] == false) {
+                            $validationStmt .= "\"" . Str::snake($migration['field_name']) . "\" => [\"required\"" . $isUnique . "]" . $lastTabs;
+                        }
                     }
                 }
             }
@@ -156,13 +156,15 @@ class BuildControllersService extends AdminrEngineService
         foreach ($migrations as $migration) {
             $lastTabs = ",\n\t\t\t\t";
             if ($migration['data_type'] != 'slug') {
-                if ($migration['data_type'] != 'uuid') {
-                    if ($migration['data_type'] != 'file') {
-                        if ($migration == $migrations[count($migrations) - 1]) {
-                            $lastTabs = "\n\t\t\t";
-                        }
-                        if ($migration['nullable'] == false) {
-                            $validationStmt .= "\"" . Str::snake($migration['field_name']) . "\" => [\"required\"]" . $lastTabs . "";
+                if ($migration['related_model'] != 'auth') {
+                    if ($migration['data_type'] != 'uuid') {
+                        if ($migration['data_type'] != 'file') {
+                            if ($migration == $migrations[count($migrations) - 1]) {
+                                $lastTabs = "\n\t\t\t";
+                            }
+                            if ($migration['nullable'] == false) {
+                                $validationStmt .= "\"" . Str::snake($migration['field_name']) . "\" => [\"required\"]" . $lastTabs . "";
+                            }
                         }
                     }
                 }
@@ -216,7 +218,6 @@ class BuildControllersService extends AdminrEngineService
                     $fileUploadStmt .= "if(\$request->file(\"" . Str::snake($migration['field_name']) . "\")){\n\t\t\t\t";
                     $fileUploadStmt .= "\$" . Str::snake($migration['field_name']) . " = \$this->uploadFiles(\$request->file(\"" . Str::snake($migration['field_name']) . "\"), \"" . $this->modelEntities . "\")->getFilePaths();\n\t\t\t";
                     $fileUploadStmt .= "\$" . Str::snake($migration['field_name']) . " = json_encode(\$" . Str::snake($migration['field_name']) . ");\n\t\t\t";
-
                 }
                 $fileUploadStmt .= "}";
                 $fileUploadStmt .= " else {\n\t\t\t\t";
@@ -276,6 +277,8 @@ class BuildControllersService extends AdminrEngineService
                 $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$" . Str::snake($migration['field_name']) . $lastTabs;
             } elseif ($migration['data_type'] == 'uuid') {
                 $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => Str::uuid()" . $lastTabs;
+            } elseif ($migration['related_model'] == 'auth') {
+                $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => auth()->id()" . $lastTabs;
             } else {
                 $saveDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$request->get(\"" . Str::snake($migration['field_name']) . "\")" . $lastTabs;
             }
@@ -298,6 +301,8 @@ class BuildControllersService extends AdminrEngineService
                     $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$" . Str::snake($migration['field_name']) . $lastTabs;
                 } elseif ($migration['data_type'] == 'uuid') {
                     $updateDataStmt .= "";
+                } elseif ($migration['related_model'] == 'auth') {
+                    $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => auth()->id()" . $lastTabs;
                 } else {
                     $updateDataStmt .= "\"" . Str::snake($migration['field_name']) . "\" => \$request->get(\"" . Str::snake($migration['field_name']) . "\")" . $lastTabs;
                 }
@@ -330,7 +335,9 @@ class BuildControllersService extends AdminrEngineService
         $foreignEntityUseStmt = '';
         foreach ($migrations as $migration) {
             if ($migration['data_type'] == 'foreignId') {
-                $foreignEntityUseStmt .= "use \\App\\Models\\" . Str::ucfirst($migration['related_model']) . ";\n";
+                if ($migration['related_model'] != 'auth') {
+                    $foreignEntityUseStmt .= "use \\App\\Models\\" . Str::ucfirst($migration['related_model']) . ";\n";
+                }
             }
         }
         return $foreignEntityUseStmt;
@@ -343,7 +350,9 @@ class BuildControllersService extends AdminrEngineService
         $foreignEntityDataStmt = '';
         foreach ($migrations as $migration) {
             if ($migration['data_type'] == 'foreignId') {
-                $foreignEntityDataStmt .= "$" . Str::snake(Str::plural($migration['related_model'])) . " = " . Str::ucfirst($migration['related_model']) . "::select('id', '" . $migration['related_model_label'] . "')->get();\n\t\t\t\t";
+                if ($migration['related_model'] != 'auth') {
+                    $foreignEntityDataStmt .= "$" . Str::snake(Str::plural($migration['related_model'])) . " = " . Str::ucfirst($migration['related_model']) . "::select('id', '" . $migration['related_model_label'] . "')->get();\n\t\t\t\t";
+                }
             }
         }
         return $foreignEntityDataStmt;
@@ -356,7 +365,9 @@ class BuildControllersService extends AdminrEngineService
         $foreignEntityDataStmt = '';
         foreach ($migrations as $migration) {
             if ($migration['data_type'] == 'foreignId') {
-                $foreignEntityDataStmt .= ", '" . Str::snake(Str::plural($migration['related_model'])) . "'";
+                if ($migration['related_model'] != 'auth') {
+                    $foreignEntityDataStmt .= ", '" . Str::snake(Str::plural($migration['related_model'])) . "'";
+                }
             }
         }
         return $foreignEntityDataStmt;
@@ -366,15 +377,19 @@ class BuildControllersService extends AdminrEngineService
     {
         $migrations = $this->request->get('migrations');
         $hasForeignId = false;
+        $hasAuthModel = false;
         $foreignEntityDataStmt = ", compact(";
         foreach ($migrations as $migration) {
             if ($migration['data_type'] == 'foreignId') {
-                $foreignEntityDataStmt .= "'" . Str::snake(Str::plural($migration['related_model'])) . "', ";
+                if ($migration['related_model'] != 'auth') {
+                    $foreignEntityDataStmt .= "'" . Str::snake(Str::plural($migration['related_model'])) . "', ";
+                    $hasAuthModel = true;
+                }
                 $hasForeignId = true;
             }
         }
         $foreignEntityDataStmt .= ")";
-        return $hasForeignId ? $foreignEntityDataStmt : "";
+        return $hasForeignId && $hasAuthModel ? $foreignEntityDataStmt : "";
     }
 
     public function rollback(): static

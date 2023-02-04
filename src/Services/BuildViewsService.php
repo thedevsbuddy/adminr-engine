@@ -126,24 +126,28 @@ class BuildViewsService extends AdminrEngineService
     private function getInputField($migration)
     {
         $isLongText = in_array($migration['data_type'], Database::longTextDataTypes());
-        if ($isLongText) {
-            $longTextInput = $this->getViewStub('textarea-input');
-            return $this->processInputStubs($longTextInput, $migration);
-        } else {
-            $inputFile = $this->getViewStub(Database::htmlDataType($migration['data_type']) . '-input');
-            return $this->processInputStubs($inputFile, $migration);
+        if ($migration['related_model'] != 'auth') {
+            if ($isLongText) {
+                $longTextInput = $this->getViewStub('textarea-input');
+                return $this->processInputStubs($longTextInput, $migration);
+            } else {
+                $inputFile = $this->getViewStub(Database::htmlDataType($migration['data_type']) . '-input');
+                return $this->processInputStubs($inputFile, $migration);
+            }
         }
     }
 
     private function getEditInputField($migration): array|string
     {
         $isLongText = in_array($migration['data_type'], Database::longTextDataTypes());
-        if ($isLongText) {
-            $longTextInput = $this->getViewStub('textarea-edit-input');
-            return $this->processInputStubs($longTextInput, $migration);
-        } else {
-            $inputFile = $this->getViewStub(Database::htmlDataType($migration['data_type']) . '-edit-input');
-            return $this->processInputStubs($inputFile, $migration);
+        if ($migration['related_model'] != 'auth') {
+            if ($isLongText) {
+                $longTextInput = $this->getViewStub('textarea-edit-input');
+                return $this->processInputStubs($longTextInput, $migration);
+            } else {
+                $inputFile = $this->getViewStub(Database::htmlDataType($migration['data_type']) . '-edit-input');
+                return $this->processInputStubs($inputFile, $migration);
+            }
         }
     }
 
@@ -193,9 +197,9 @@ class BuildViewsService extends AdminrEngineService
     private function getOldFileStatement(): string
     {
         $oldFileStmt = "";
-        foreach ($this->request->get('migrations') as $migration){
-            if($migration['data_type'] == 'file'){
-                if($migration['file_type'] == 'single'){
+        foreach ($this->request->get('migrations') as $migration) {
+            if ($migration['data_type'] == 'file') {
+                if ($migration['file_type'] == 'single') {
                     $oldFileStmt .= "{{ collect(explode('/', $" . $this->modelEntity . "->" . Str::snake($migration['field_name']) . "))->last() }}";
                 } else {
                     $oldFileStmt .= "{{ count(json_decode($" . $this->modelEntity . "->" . Str::snake($migration['field_name']) . ")) }} files";
@@ -208,15 +212,15 @@ class BuildViewsService extends AdminrEngineService
     private function getOptionsStmt($migration): string
     {
         $optionsStmt = "";
-        if($migration['data_type'] == 'enum'){
-            $optionsStmt .= "<option value=\"\">--Select ".Str::title($migration['field_name'])."--</option>\n\t\t";
-            foreach (preg_split('/[,\s?]+/', $migration['enum_values']) as $val){
-                $optionsStmt .= "<option value=\"".strtolower($val)."\">".Str::title($val)."</option>\n\t\t";
+        if ($migration['data_type'] == 'enum') {
+            $optionsStmt .= "<option value=\"\">--Select " . Str::title($migration['field_name']) . "--</option>\n\t\t";
+            foreach (preg_split('/[,\s?]+/', $migration['enum_values']) as $val) {
+                $optionsStmt .= "<option value=\"" . strtolower($val) . "\">" . Str::title($val) . "</option>\n\t\t";
             }
-        } else if($migration['data_type'] == 'foreignId'){
-            $optionsStmt .= "<option value=\"\">--Select ".Str::title($migration['related_model'])."--</option>\n\t\t\t\t\t\t\t\t\t\t";
-            $optionsStmt .= "@foreach($".Str::camel(Str::plural($migration['related_model']))." as \$index => $".Str::camel(Str::singular($migration['related_model'])).")\n\t\t\t\t\t\t\t\t\t\t\t";
-            $optionsStmt .= "<option value=\"{{\$".Str::camel(Str::singular($migration['related_model']))."->id}}\">{{\$".Str::camel(Str::singular($migration['related_model']))."->".Str::snake($migration['related_model_label'])."}}</option>\n\t\t\t\t\t\t\t\t\t\t";
+        } else if ($migration['data_type'] == 'foreignId') {
+            $optionsStmt .= "<option value=\"\">--Select " . Str::title($migration['related_model']) . "--</option>\n\t\t\t\t\t\t\t\t\t\t";
+            $optionsStmt .= "@foreach($" . Str::camel(Str::plural($migration['related_model'])) . " as \$index => $" . Str::camel(Str::singular($migration['related_model'])) . ")\n\t\t\t\t\t\t\t\t\t\t\t";
+            $optionsStmt .= "<option value=\"{{\$" . Str::camel(Str::singular($migration['related_model'])) . "->id}}\">{{\$" . Str::camel(Str::singular($migration['related_model'])) . "->" . Str::snake($migration['related_model_label']) . "}}</option>\n\t\t\t\t\t\t\t\t\t\t";
             $optionsStmt .= "@endforeach";
         }
 
@@ -316,5 +320,4 @@ class BuildViewsService extends AdminrEngineService
         }
         return $this;
     }
-
 }
