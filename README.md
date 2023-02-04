@@ -1,4 +1,4 @@
-# Adminr Engine v0.1.5
+# Adminr Engine v0.1.6
 
 <p align="center">
 <a href="https://packagist.org/packages/thedevsbuddy/adminr-engine"><img src="https://img.shields.io/packagist/dt/thedevsbuddy/adminr-engine" alt="Total Downloads"></a>
@@ -8,7 +8,7 @@
 
 ## About Adminr Engine
 
-It is meant to be work with <a href="https://github.com/thedevsbuddy/adminr">AdminR - An Admin panel & crud generator</a> 
+It is meant to be work with <a href="https://github.com/thedevsbuddy/adminr">AdminR - An Admin panel & crud generator</a>
 
 So this won't work on any other projects.
 
